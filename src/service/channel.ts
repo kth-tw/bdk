@@ -1,6 +1,6 @@
 import { diff, detailedDiff } from 'deep-object-diff'
 import { logger } from '../util/logger'
-import { ConfigtxlatorEnum, ChannelCreateType, ChannelJoinType, ChannelUpdateAnchorPeerType, ChannelFetchBlockType, ChannelConfigEnum, ChannelApproveType, ChannelUpdateType, DecodeEnvelopeType, DecodeEnvelopeReturnType, EnvelopeTypeEnum, EnvelopeVerifyEnum } from '../model/type/channel.type'
+import { ConfigtxlatorEnum, ChannelCreateType, ChannelJoinType, ChannelUpdateAnchorPeerType, ChannelFetchBlockType, ChannelConfigEnum, ChannelApproveType, ChannelUpdateType, DecodeEnvelopeType, DecodeEnvelopeReturnType, EnvelopeTypeEnum, EnvelopeVerifyEnum, ChannelCertPreUpdateType } from '../model/type/channel.type'
 import { OrgTypeEnum } from '../config'
 import ConfigtxYaml from '../model/yaml/network/configtx'
 import FabricTools from '../instance/fabricTools'
@@ -413,5 +413,45 @@ export default class Channel extends AbstractService {
 
   public listJoinedChannel = async (): Promise<InfraRunnerResultType> => {
     return await (new FabricInstance(this.config, this.infra)).listJoinedChannel()
+  }
+
+  public async channelCertPreUpdate (data: ChannelCertPreUpdateType): Promise<void> { // Promise<InfraRunnerResultType> {
+    logger.debug('Channel peer cert preupdate')
+    await this.channelCertPreUpdateSteps().fetchChannelConfig(data)
+    await this.channelCertPreUpdateSteps().computeUpdateConfigTx(data)
+    // await this.updateAnchorPeerSteps().signConfigTx(data)
+    // return this.updateAnchorPeerSteps().updateChannelConfig(data)
+  }
+
+  /**
+   * @ignore
+   */
+  public channelCertPreUpdateSteps () {
+    return {
+      fetchChannelConfig: async (dto: ChannelCertPreUpdateType): Promise<InfraRunnerResultType> => {
+        const { channelName } = dto
+
+        logger.debug(`Channel Update Anchor Peer: fetch ${ChannelConfigEnum.CONFIG_BLOCK} block in ${channelName}`)
+
+        this.bdkFile.createChannelArtifactFolder(channelName)
+        return await this.fetchChannelConfig(channelName)
+      },
+      computeUpdateConfigTx: async (dto: ChannelCertPreUpdateType) => {
+        const { channelName } = dto
+        const orgName = this.config.orgName
+        const host = `${this.config.hostname}.${this.config.orgDomainName}`
+
+        logger.debug(`Channel Update Cert: alter ${host} intermediate cert config in ${channelName} - compute update`)
+
+        const updateFunction = (configBlock: any) => {
+          const modifiedConfigBlock = JSON.parse(JSON.stringify(configBlock))
+          modifiedConfigBlock.channel_group.groups.Application.groups[orgName].values.MSP.value.config.intermediate_certs = [this.bdkFile.getPeerOrgIcaCertBase64(this.config.orgDomainName)]
+          modifiedConfigBlock.channel_group.groups.Application.groups[orgName].values.MSP.value.config.tls_intermediate_certs = [this.bdkFile.getPeerOrgIcaTlsCertBase64(this.config.orgDomainName)]
+          return modifiedConfigBlock
+        }
+
+        await this.computeUpdateConfigTx(channelName, updateFunction)
+      },
+    }
   }
 }
