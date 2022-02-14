@@ -102,48 +102,48 @@ bdk network create -f ./cicd/test_script/network-create.json --genesis --connect
 # =====================================================
 . ./cicd/test_script/steps/peer-and-orderer-up.sh
 . ./cicd/test_script/steps/channel.sh
-. ./cicd/test_script/steps/explorer.sh
-. ./cicd/test_script/steps/chaincode.sh
+# . ./cicd/test_script/steps/explorer.sh
+# . ./cicd/test_script/steps/chaincode.sh
 # =====================================================
 
-# [ORGNEW] ICA
-bdk ca register -t ica -a admin -u ${RCA_DOMAIN} -p ${RCA_PORT} --client-id ${ICA_DOMAIN_ORGNEW} --client-secret orgnewicapw
-bdk ca up -n ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --ica-parentserver-cn ${RCA_DOMAIN} --ica-parentserver-url "https://${ICA_DOMAIN_ORGNEW}:orgnewicapw@${RCA_DOMAIN}:${RCA_PORT}" --ica-enrollment-host ${ICA_DOMAIN_ORGNEW} --ica-enrollment-profile ca
-sleep 2
+# # [ORGNEW] ICA
+# bdk ca register -t ica -a admin -u ${RCA_DOMAIN} -p ${RCA_PORT} --client-id ${ICA_DOMAIN_ORGNEW} --client-secret orgnewicapw
+# bdk ca up -n ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --ica-parentserver-cn ${RCA_DOMAIN} --ica-parentserver-url "https://${ICA_DOMAIN_ORGNEW}:orgnewicapw@${RCA_DOMAIN}:${RCA_PORT}" --ica-enrollment-host ${ICA_DOMAIN_ORGNEW} --ica-enrollment-profile ca
+# sleep 2
 
-# [orgnew] orderer
-bdk ca enroll -t client -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id admin --client-secret adminpw --role orderer --org-hostname ${ORDERER_ORG_DOMAIN_ORGNEW}
-# - orderer org
-bdk ca register -t admin -a admin -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id Admin@${ORDERER_ORG_DOMAIN_ORGNEW} --client-secret adminpw
-bdk ca enroll -t user -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id Admin@${ORDERER_ORG_DOMAIN_ORGNEW} --client-secret adminpw --role orderer --org-hostname ${ORDERER_ORG_DOMAIN_ORGNEW}
-# - orderer0
-bdk ca register -t orderer -a admin -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id "${ORDERER_ORG_HOSTNAME_ORGNEW_ORDERER0}.${ORDERER_ORG_DOMAIN_ORGNEW}" --client-secret orgnewordererpw
-bdk ca enroll -t orderer -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id "${ORDERER_ORG_HOSTNAME_ORGNEW_ORDERER0}.${ORDERER_ORG_DOMAIN_ORGNEW}" --client-secret orgnewordererpw --role orderer --org-hostname ${ORDERER_ORG_DOMAIN_ORGNEW}
-# - orderer1
-bdk ca register -t orderer -a admin -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id "${ORDERER_ORG_HOSTNAME_ORGNEW_ORDERER1}.${ORDERER_ORG_DOMAIN_ORGNEW}" --client-secret orgnewordererpw
-bdk ca enroll -t orderer -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id "${ORDERER_ORG_HOSTNAME_ORGNEW_ORDERER1}.${ORDERER_ORG_DOMAIN_ORGNEW}" --client-secret orgnewordererpw --role orderer --org-hostname ${ORDERER_ORG_DOMAIN_ORGNEW}
-# - create orderer org
-bdk org orderer create -f cicd/test_script/org-orderer-create.json --genesis-file-name newest_genesis --configtxJSON --docker-compose
+# # [orgnew] orderer
+# bdk ca enroll -t client -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id admin --client-secret adminpw --role orderer --org-hostname ${ORDERER_ORG_DOMAIN_ORGNEW}
+# # - orderer org
+# bdk ca register -t admin -a admin -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id Admin@${ORDERER_ORG_DOMAIN_ORGNEW} --client-secret adminpw
+# bdk ca enroll -t user -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id Admin@${ORDERER_ORG_DOMAIN_ORGNEW} --client-secret adminpw --role orderer --org-hostname ${ORDERER_ORG_DOMAIN_ORGNEW}
+# # - orderer0
+# bdk ca register -t orderer -a admin -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id "${ORDERER_ORG_HOSTNAME_ORGNEW_ORDERER0}.${ORDERER_ORG_DOMAIN_ORGNEW}" --client-secret orgnewordererpw
+# bdk ca enroll -t orderer -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id "${ORDERER_ORG_HOSTNAME_ORGNEW_ORDERER0}.${ORDERER_ORG_DOMAIN_ORGNEW}" --client-secret orgnewordererpw --role orderer --org-hostname ${ORDERER_ORG_DOMAIN_ORGNEW}
+# # - orderer1
+# bdk ca register -t orderer -a admin -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id "${ORDERER_ORG_HOSTNAME_ORGNEW_ORDERER1}.${ORDERER_ORG_DOMAIN_ORGNEW}" --client-secret orgnewordererpw
+# bdk ca enroll -t orderer -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id "${ORDERER_ORG_HOSTNAME_ORGNEW_ORDERER1}.${ORDERER_ORG_DOMAIN_ORGNEW}" --client-secret orgnewordererpw --role orderer --org-hostname ${ORDERER_ORG_DOMAIN_ORGNEW}
+# # - create orderer org
+# bdk org orderer create -f cicd/test_script/org-orderer-create.json --genesis-file-name newest_genesis --configtxJSON --docker-compose
 
-# [orgnew] peer
-bdk ca enroll -t client -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id admin --client-secret adminpw --role peer --org-hostname ${PEER_ORG_DOMAIN_ORGNEW}
-# - peer org
-bdk ca register -t admin -a admin -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id Admin@${PEER_ORG_DOMAIN_ORGNEW} --client-secret adminpw
-bdk ca enroll -t user -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id Admin@${PEER_ORG_DOMAIN_ORGNEW} --client-secret adminpw --role peer --org-hostname ${PEER_ORG_DOMAIN_ORGNEW}
-# - peer0
-bdk ca register -t peer -a admin -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id peer0.${PEER_ORG_DOMAIN_ORGNEW} --client-secret orgnewpeerpw
-bdk ca enroll -t peer -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id peer0.${PEER_ORG_DOMAIN_ORGNEW} --client-secret orgnewpeerpw --role peer --org-hostname ${PEER_ORG_DOMAIN_ORGNEW}
-# - peer1
-bdk ca register -t peer -a admin -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id peer1.${PEER_ORG_DOMAIN_ORGNEW} --client-secret orgnewpeerpw
-bdk ca enroll -t peer -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id peer1.${PEER_ORG_DOMAIN_ORGNEW} --client-secret orgnewpeerpw --role peer --org-hostname ${PEER_ORG_DOMAIN_ORGNEW}
-# - create peer org
-bdk org peer create -f ./cicd/test_script/org-peer-create.json --configtxJSON --connection-profile --docker-compose
+# # [orgnew] peer
+# bdk ca enroll -t client -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id admin --client-secret adminpw --role peer --org-hostname ${PEER_ORG_DOMAIN_ORGNEW}
+# # - peer org
+# bdk ca register -t admin -a admin -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id Admin@${PEER_ORG_DOMAIN_ORGNEW} --client-secret adminpw
+# bdk ca enroll -t user -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id Admin@${PEER_ORG_DOMAIN_ORGNEW} --client-secret adminpw --role peer --org-hostname ${PEER_ORG_DOMAIN_ORGNEW}
+# # - peer0
+# bdk ca register -t peer -a admin -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id peer0.${PEER_ORG_DOMAIN_ORGNEW} --client-secret orgnewpeerpw
+# bdk ca enroll -t peer -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id peer0.${PEER_ORG_DOMAIN_ORGNEW} --client-secret orgnewpeerpw --role peer --org-hostname ${PEER_ORG_DOMAIN_ORGNEW}
+# # - peer1
+# bdk ca register -t peer -a admin -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id peer1.${PEER_ORG_DOMAIN_ORGNEW} --client-secret orgnewpeerpw
+# bdk ca enroll -t peer -u ${ICA_DOMAIN_ORGNEW} -p ${ICA_PORT_ORGNEW} --client-id peer1.${PEER_ORG_DOMAIN_ORGNEW} --client-secret orgnewpeerpw --role peer --org-hostname ${PEER_ORG_DOMAIN_ORGNEW}
+# # - create peer org
+# bdk org peer create -f ./cicd/test_script/org-peer-create.json --configtxJSON --connection-profile --docker-compose
 
-# =====================================================
-. ./cicd/test_script/steps/add-new-peer-org.sh
-. ./cicd/test_script/steps/add-new-orderer-org.sh
-. ./cicd/test_script/steps/test-new-org.sh
-# =====================================================
+# # =====================================================
+# . ./cicd/test_script/steps/add-new-peer-org.sh
+# . ./cicd/test_script/steps/add-new-orderer-org.sh
+# . ./cicd/test_script/steps/test-new-org.sh
+# # =====================================================
 
 sleep 5
 docker ps -a
